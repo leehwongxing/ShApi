@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace API.Controllers
 {
@@ -11,9 +8,13 @@ namespace API.Controllers
     {
         // GET api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public SampleObject Get()
         {
-            return new string[] { "value1", "value2" };
+            return new SampleObject
+            {
+                Name = "SampleObject",
+                Number = DateTime.UtcNow.Ticks
+            };
         }
 
         // GET api/values/5
@@ -40,5 +41,14 @@ namespace API.Controllers
         public void Delete(int id)
         {
         }
+    }
+
+    public class SampleObject
+    {
+        public string Name { get; set; }
+
+        public DateTime Time { get { return DateTime.UtcNow; } }
+
+        public long Number { get; set; }
     }
 }

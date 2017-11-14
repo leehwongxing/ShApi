@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  #api
+  api:
+    container_name: api
+    image: api
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+    links:
+      - mongodb
+      - redis
+    depends_on:
+      - mongodb
+      - redis
+
+  #mongodb
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    logging:
+      driver: json-file
+
+  # mongo-express
+  mongo-express:
+    container_name: mongo-express
+    image: mongo-express
+    logging:
+      driver: json-file
+    restart: always
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+
+  #redis
+  redis:
+    container_name: redis
+    image: redis:alpine
+
+  #redis-commander
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    links:
+      - redis
+    depends_on:
+      - redis
