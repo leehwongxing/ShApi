@@ -27,10 +27,18 @@ namespace API
             // Add framework services.
             services.AddMvc(options =>
             {
-                options.InputFormatters.Add(new Formatters.Input());
-                options.OutputFormatters.Add(new Formatters.Output());
+                options.InputFormatters.RemoveAt(0);
+                options.OutputFormatters.RemoveAt(0);
+
+                options.InputFormatters.Insert(0, new Formatters.Input());
+                options.OutputFormatters.Insert(0, new Formatters.Output());
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeHeaderValue.Parse("application/json"));
             });
+
+            services.Configure<Configs.Mongo>(Configuration.GetSection("MongoCluster"));
+            services.Configure<Configs.Redis>(Configuration.GetSection("RedisCluster"));
+
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

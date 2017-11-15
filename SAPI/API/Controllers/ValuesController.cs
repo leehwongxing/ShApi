@@ -1,20 +1,31 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
+        private IOptionsSnapshot<Configs.Mongo> Options { get; set; }
+
+        public ValuesController(IOptionsSnapshot<Configs.Mongo> options)
+        {
+            Options = options;
+        }
+
         // GET api/values
         [HttpGet]
-        public SampleObject Get()
+        public Dictionary<string, string> Get()
         {
-            return new SampleObject
+            var DnC = new Dictionary<string, string>
             {
-                Name = "SampleObject",
-                Number = DateTime.UtcNow.Ticks
+                { "First", Options.Value.ConnectString },
+                { "Second", Options.Value.Database },
+                { "Third", Options.Value.Password }
             };
+
+            return DnC;
         }
 
         // GET api/values/5
@@ -41,14 +52,5 @@ namespace API.Controllers
         public void Delete(int id)
         {
         }
-    }
-
-    public class SampleObject
-    {
-        public string Name { get; set; }
-
-        public DateTime Time { get { return DateTime.UtcNow; } }
-
-        public long Number { get; set; }
     }
 }

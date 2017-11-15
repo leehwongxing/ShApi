@@ -22,7 +22,7 @@ namespace API.Formatters
 
             using (var Reader = new StreamReader(Request.Body, Encoding.UTF8, true, 10240))
             {
-                var Deserialized = JSON.Deserialize(Reader.ReadToEnd(), InputType);
+                var Deserialized = JSON.Deserialize(Reader, InputType, Options.ISO8601IncludeInherited);/// REF: Nancy's Jil Serializer
 
                 return InputFormatterResult.SuccessAsync(Deserialized);
             }

@@ -1,5 +1,6 @@
 ﻿using Jil;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Net.Http.Headers;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace API.Formatters
     {
         public Output()
         {
+            SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/json"));
         }
 
         public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context)
@@ -18,7 +20,7 @@ namespace API.Formatters
 
             using (var Writer = new StreamWriter(response.Body, Encoding.UTF8, 10240))
             {
-                Writer.WriteAsync(JSON.Serialize(context.Object));
+                Writer.WriteAsync(JSON.Serialize(context.Object, Options.ISO8601IncludeInherited)); /// REF: Nancy's Jil Serializer
             }
 
             return Task.FromResult(response);
