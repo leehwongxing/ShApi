@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Databases\" />
     <Folder Include="Messages\" />
     <Folder Include="Tokens\" />
   </ItemGroup>

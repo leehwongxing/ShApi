@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using System;
 
 namespace DTO
 {
@@ -13,6 +14,11 @@ namespace DTO
         {
             return string.Join("__",
                 "");
+        }
+
+        public static long Tick()
+        {
+            return DateTime.UtcNow.Ticks;
         }
     }
 }

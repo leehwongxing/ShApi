@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace API.Repositories.Redis
 {
-    public class Base<T>
+    public abstract class Base<T>
     {
         private string BucketName { get; set; }
 
@@ -19,5 +19,13 @@ namespace API.Repositories.Redis
 
             BucketName = Name ?? TypeName;
         }
+
+        public abstract void Save(T Document);
+
+        public abstract void Delete(string Key);
+
+        public abstract T GetOne(string Key);
+
+        public abstract IEnumerable<T> GetList(string Key, int Position);
     }
 }
