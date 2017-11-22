@@ -10,12 +10,6 @@ namespace DTO
             return ObjectId.GenerateNewId().ToString();
         }
 
-        public static string Ansi()
-        {
-            return string.Join("__",
-                "");
-        }
-
         public static long Tick()
         {
             return DateTime.UtcNow.Ticks;

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MongoDB.Bson.Serialization.Attributes;
 
 namespace DTO.Databases
 {
     public class Permission : Owned
     {
+        [BsonId]
         public string Id { get { return GetId(); } }
 
         public bool Owned { get; set; }
@@ -27,7 +26,7 @@ namespace DTO.Databases
             return string.Join("__",
                 Group,
                 (Owned ? "TRUE" : "FALSE"),
-                (Granted.Replace(" ", "").Replace("-", ""))
+                (Granted.Replace(" ", "_").Replace("-", "_").Replace("__", "_"))
                 ).ToUpperInvariant();
         }
     }

@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using System;
+using System.Linq;
 
 namespace API.Repositories.Mongo
 {
@@ -11,7 +12,9 @@ namespace API.Repositories.Mongo
 
         private string TypeName { get { return typeof(T).Name.Replace("-", "").Replace(".", "_").Replace("__", "_"); } }
 
-        protected IMongoCollection<T> Collection { get { return GetCollection(); } }
+        public IMongoCollection<T> Collection { get { return GetCollection(); } }
+
+        public IQueryable<T> QueryableCollection { get { return Queryable(); } }
 
         public Base(Databases.Mongo client, string Name = "")
         {
@@ -25,9 +28,16 @@ namespace API.Repositories.Mongo
             return Client.Database.GetCollection<T>(CollectionName);
         }
 
-        public abstract void Save(T Document);
+        private IQueryable<T> Queryable()
+        {
+            return GetCollection().AsQueryable();
+        }
 
-        public abstract void Delete(T Document);
+        public abstract void Migration();
+
+        public abstract bool Save(T Document);
+
+        public abstract bool Delete(T Document);
 
         public abstract T GetOne(string Id);
     }

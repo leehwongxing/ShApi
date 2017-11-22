@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace DTO.Databases
 {
-    public class User
+    public class User : Owned
     {
         public string Id { get; set; }
 
@@ -24,11 +22,13 @@ namespace DTO.Databases
 
         public string Birthday { get; set; }
 
-        public string Gender { get; set; }
+        public int Gender { get; set; } // 0 là Nam, 1 là Nữ
 
         public User()
         {
             Id = Generator.Id();
+            Group = "USER";
+            Owner = Id;
             Email = "";
             Password = "";
             Fullname = "";
@@ -37,7 +37,9 @@ namespace DTO.Databases
             PaymentAddress = "";
             DeliveryAddress = "";
             Birthday = "";
-            Gender = "";
+            Gender = 0;
+
+            Roles.Add("Default");
         }
     }
 }
