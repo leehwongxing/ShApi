@@ -12,7 +12,7 @@ namespace DTO.Databases
 
         public Recommended() : base()
         {
-            Id = "";
+            Id = Generator.Id();
             List = new HashSet<string>();
             Reason = "";
             Group = "RECOMMENDED";

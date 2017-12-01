@@ -24,7 +24,7 @@ namespace DTO.Databases
 
         public int Gender { get; set; } // 0 là Nam, 1 là Nữ
 
-        public User()
+        public User() : base()
         {
             Id = Generator.Id();
             Group = "USER";

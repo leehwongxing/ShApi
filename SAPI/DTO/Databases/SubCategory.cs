@@ -4,9 +4,9 @@
     {
         public string ParentId { get; set; }
 
-        public SubCategory() : base()
+        public SubCategory(string CatName = "", string Parent = "") : base(CatName)
         {
-            ParentId = "";
+            ParentId = Parent;
             Group = "SUBCATEGORY";
         }
     }

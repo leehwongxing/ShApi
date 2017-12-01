@@ -20,7 +20,7 @@ namespace DTO.Databases
         {
             return string.Join("__",
                 Group,
-                Granted.Replace("-", "").Replace("_", "")
+                Generator.StripAccents(Granted).Replace("-", "").Replace("_", "")
                 ).ToUpperInvariant();
         }
     }

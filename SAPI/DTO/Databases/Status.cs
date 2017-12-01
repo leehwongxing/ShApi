@@ -4,7 +4,7 @@
     {
         public long Received { get; set; }
 
-        public long Repared { get; set; }
+        public long Prepared { get; set; }
 
         public long Delivering { get; set; }
 
@@ -15,7 +15,7 @@
         public Status()
         {
             Received = Generator.Tick();
-            Repared = -1;
+            Prepared = -1;
             Delivering = -1;
             FulFilled = -1;
             Canceled = -1;

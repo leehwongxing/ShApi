@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using System;
+using System.Text;
 
 namespace DTO
 {
@@ -12,7 +13,16 @@ namespace DTO
 
         public static long Tick()
         {
-            return DateTime.UtcNow.Ticks;
+            var Tick = (DateTimeOffset)DateTime.UtcNow;
+
+            return Tick.ToUnixTimeSeconds();
+        }
+
+        public static string StripAccents(string Input = "")
+        {
+            var InputBytes = Encoding.GetEncoding(28598).GetBytes(Input);
+            var Output = Encoding.UTF8.GetString(InputBytes).Replace("?", "").Replace("  ", " ");
+            return Output;
         }
     }
 }

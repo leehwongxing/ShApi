@@ -17,5 +17,20 @@ namespace DTO.Databases
         public HashSet<string> Categories { get; set; }
 
         public HashSet<string> SubCategories { get; set; }
+
+        public Dictionary<string, Promotion> Promotions { get; set; }
+
+        public Item() : base()
+        {
+            Id = Generator.Id();
+            Name = "";
+            Description = "";
+            Price = 0;
+            Images = new HashSet<string>();
+            Categories = new HashSet<string>();
+            SubCategories = new HashSet<string>();
+            Promotions = new Dictionary<string, Promotion>();
+            Group = "ITEM";
+        }
     }
 }
