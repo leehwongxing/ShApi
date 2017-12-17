@@ -3,7 +3,6 @@ using JWT;
 using JWT.Algorithms;
 using JWT.Serializers;
 using System;
-using System.Text;
 
 namespace API.Configs
 {

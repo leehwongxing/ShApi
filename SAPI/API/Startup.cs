@@ -40,6 +40,7 @@ namespace API
             services.Configure<Configs.Redis>(Configuration.GetSection("RedisCluster"));
             services.Configure<Configs.Permissions>(Configuration.GetSection("Permissions"));
             services.Configure<Configs.JWT>(Configuration.GetSection("JWT"));
+            services.Configure<Configs.Resource>(Configuration.GetSection("Resource"));
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 

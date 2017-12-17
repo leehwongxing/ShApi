@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DTO.Messages
+﻿namespace DTO.Messages
 {
     public class RegisteringUser
     {
