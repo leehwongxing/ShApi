@@ -5,17 +5,17 @@ namespace API.Configs
 {
     public class Permissions
     {
-        public Dictionary<string, bool> PermList { get; private set; }
+        public Dictionary<string, bool> List { get; private set; }
 
         public Permissions(Dictionary<string, bool> Default = null)
         {
             if (Default == null)
             {
-                PermList = new Dictionary<string, bool>();
+                List = new Dictionary<string, bool>();
             }
             else
             {
-                PermList = Default;
+                List = Default;
             }
         }
 
@@ -36,12 +36,12 @@ namespace API.Configs
 
         private IEnumerable<string> GetDefault()
         {
-            return PermList.Where(x => x.Value == true).Select(x => x.Key);
+            return List.Where(x => x.Value == true).Select(x => x.Key);
         }
 
         private IEnumerable<string> GetAll()
         {
-            return PermList.Select(x => x.Key);
+            return List.Select(x => x.Key);
         }
 
         private IEnumerable<string> GetPermissionsForRole(string Role = "")

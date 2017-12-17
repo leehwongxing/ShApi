@@ -14,9 +14,18 @@ namespace API.Configs
                 Content,
                 RawSalt,
                 KeyDerivationPrf.HMACSHA512,
-                6666,
+                8888,
                 512 / 8
                 ));
+        }
+
+        public static bool Compare(string Password, string Salt, string Hashed)
+        {
+            if (string.IsNullOrEmpty(Password) || string.IsNullOrEmpty(Hashed))
+            {
+                return false;
+            }
+            return string.Compare(Hash(Password, Salt), Hashed, true) == 0 ? true : false;
         }
     }
 }

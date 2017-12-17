@@ -8,9 +8,4 @@
     <PackageReference Include="MongoDB.Bson" Version="2.4.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Messages\" />
-    <Folder Include="Tokens\" />
-  </ItemGroup>
-
 </Project>

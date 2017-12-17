@@ -1,7 +1,10 @@
-﻿namespace DTO.Databases
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace DTO.Databases
 {
     public class Address : Owned
     {
+        [BsonId]
         public string Id { get; set; }
 
         public string Location { get; set; }

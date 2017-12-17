@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
 namespace DTO.Databases
 {
     public class User : Owned
     {
+        [BsonId]
         public string Id { get; set; }
 
         public string Email { get; set; }

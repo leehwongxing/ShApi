@@ -20,12 +20,7 @@ namespace API.Databases
 
             if (!string.IsNullOrEmpty(Options.Username) && !string.IsNullOrEmpty(Options.Password) && !string.IsNullOrEmpty(Options.Database))
             {
-                var Credentials = new HashSet<MongoCredential>
-                {
-                    MongoCredential.CreateCredential(Options.Database, Options.Username, Options.Password)
-                };
-
-                MongoSettings.Credentials = Credentials;
+                MongoSettings.Credential = MongoCredential.CreateCredential(Options.Database, Options.Username, Options.Password);
             }
             Client = new MongoClient(MongoSettings);
         }

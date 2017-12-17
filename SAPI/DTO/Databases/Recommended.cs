@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
 namespace DTO.Databases
 {
     public class Recommended : Owned
     {
+        [BsonId]
         public string Id { get; set; }
 
         public HashSet<string> List { get; set; }

@@ -20,7 +20,7 @@ namespace API.Repositories.Mongo
                 throw new Exception("Id of to be Deleted Document can't empty");
             }
 
-            var Filter = new BsonDocument("_id", Document.Id);
+            var Filter = new BsonDocument("_id", Id);
             Collection.DeleteOne(Filter);
             return true;
         }
@@ -57,6 +57,8 @@ namespace API.Repositories.Mongo
                 };
 
                 DefaultUser.Roles.Add("Administrator");
+                DefaultUser.Roles.Add("Default");
+
                 DefaultUser.Password = Configs.Hashing.Hash("Bo Trong Cung Duoc", DefaultUser.Id);
 
                 Collection.InsertOne(DefaultUser);

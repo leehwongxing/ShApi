@@ -1,7 +1,10 @@
-﻿namespace DTO.Databases
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace DTO.Databases
 {
     public class Category : Owned
     {
+        [BsonId]
         public string Id { get { return GetId(); } }
 
         public string Name { get; set; }

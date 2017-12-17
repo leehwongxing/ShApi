@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -37,6 +38,10 @@ namespace API
 
             services.Configure<Configs.Mongo>(Configuration.GetSection("MongoCluster"));
             services.Configure<Configs.Redis>(Configuration.GetSection("RedisCluster"));
+            services.Configure<Configs.Permissions>(Configuration.GetSection("Permissions"));
+            services.Configure<Configs.JWT>(Configuration.GetSection("JWT"));
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddCors();
         }

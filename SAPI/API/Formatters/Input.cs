@@ -11,6 +11,8 @@ namespace API.Formatters
     {
         public Input()
         {
+            SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("application/json"));
+            SupportedMediaTypes.Add(MediaTypeHeaderValue.Parse("text/plain")); // debug only
         }
 
         public override Task<InputFormatterResult> ReadRequestBodyAsync(InputFormatterContext context)
@@ -22,9 +24,16 @@ namespace API.Formatters
 
             using (var Reader = new StreamReader(Request.Body, Encoding.UTF8, true, 10240))
             {
-                var Deserialized = JSON.Deserialize(Reader, InputType, Options.ISO8601IncludeInherited);/// REF: Nancy's Jil Serializer
+                try
+                {
+                    var Deserialized = JSON.Deserialize(Reader, InputType, Options.ISO8601IncludeInherited);/// REF: Nancy's Jil Serializer
 
-                return InputFormatterResult.SuccessAsync(Deserialized);
+                    return InputFormatterResult.SuccessAsync(Deserialized);
+                }
+                catch (DeserializationException)
+                {
+                    return InputFormatterResult.FailureAsync();
+                }
             }
         }
     }
