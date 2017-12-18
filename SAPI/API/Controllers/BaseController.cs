@@ -76,10 +76,11 @@ namespace API.Controllers
 
             if (Roles != null && Roles.Count > 0)
             {
-                var Origin = new HashSet<string>
+                var Origin = new HashSet<string>();
+                if (Token != null)
                 {
-                    Token.aud
-                };
+                    Origin.Add(Token.aud);
+                }
                 Origin.IntersectWith(Roles);
 
                 if (Origin.Count == 0)

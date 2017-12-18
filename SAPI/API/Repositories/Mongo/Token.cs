@@ -1,5 +1,4 @@
 ﻿using MongoDB.Bson;
-using System;
 using System.Linq;
 
 namespace API.Repositories.Mongo
@@ -16,7 +15,7 @@ namespace API.Repositories.Mongo
 
             if (string.IsNullOrWhiteSpace(Id))
             {
-                throw new Exception("Token's ID can't be empty");
+                return false;
             }
 
             var Filter = new BsonDocument("_id", Id);
@@ -28,7 +27,7 @@ namespace API.Repositories.Mongo
         {
             if (string.IsNullOrWhiteSpace(Id))
             {
-                throw new Exception("Token's Id can't be empty");
+                return null;
             }
 
             var Query = QueryableCollection.Where(x => x.TokenId == Id);
@@ -50,24 +49,23 @@ namespace API.Repositories.Mongo
 
         public override bool Save(DTO.Databases.Token Document)
         {
+            if (string.IsNullOrWhiteSpace(Document.TokenId))
+            {
+                return false;
+            }
             var Query = QueryableCollection.Where(x => x.TokenId == Document.TokenId);
 
-            if (Query.Count() == 0)
-            {
-                Collection.InsertOne(Document);
-            }
-            else
+            if (Query.Count() > 0)
             {
                 var Old = Query.First();
-
-                if (Old.ModifiedAt >= Document.ModifiedAt)
+                if (Document.ModifiedAt < Old.ModifiedAt)
                 {
                     return false;
                 }
-
-                var Filter = new BsonDocument("_id", Document.TokenId);
-                Collection.ReplaceOne(Filter, Document);
             }
+
+            var Filter = new BsonDocument("_id", Document.TokenId);
+            Collection.ReplaceOne(Filter, Document, new MongoDB.Driver.UpdateOptions { IsUpsert = true });
             return true;
         }
     }

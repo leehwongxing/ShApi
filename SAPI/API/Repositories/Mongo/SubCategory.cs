@@ -3,14 +3,13 @@ using System.Linq;
 
 namespace API.Repositories.Mongo
 {
-    public class User : Base<DTO.Databases.User>
+    public class SubCategory : Base<DTO.Databases.SubCategory>
     {
-        public User(Databases.Mongo client) : base(client, "Users")
+        public SubCategory(Databases.Mongo Client) : base(Client, "SubCategories")
         {
-            Migration();
         }
 
-        public override bool Delete(DTO.Databases.User Document)
+        public override bool Delete(DTO.Databases.SubCategory Document)
         {
             if (string.IsNullOrWhiteSpace(Document.Id))
             {
@@ -22,52 +21,36 @@ namespace API.Repositories.Mongo
             return true;
         }
 
-        public override DTO.Databases.User GetOne(string Id)
+        public override DTO.Databases.SubCategory GetOne(string Id)
         {
             if (string.IsNullOrWhiteSpace(Id))
             {
                 return null;
             }
 
-            var Queried = QueryableCollection.Where(x => x.Id == Id);
-
-            if (Queried.Count() != 1)
+            var Query = QueryableCollection.Where(x => x.Id == Id);
+            if (Query.Count() == 0)
             {
                 return null;
             }
             else
             {
-                return Queried.First();
+                return Query.First();
             }
         }
 
         public override void Migration()
         {
-            var Count = QueryableCollection.LongCount();
-
-            if (Count == 0)
-            {
-                var DefaultUser = new DTO.Databases.User()
-                {
-                    Email = "leehwongxing@yandex.ru",
-                    Fullname = "leehwongxing"
-                };
-
-                DefaultUser.Roles.Add("Administrator");
-                DefaultUser.Roles.Add("Default");
-
-                DefaultUser.Password = Configs.Hashing.Hash("Bo Trong Cung Duoc", DefaultUser.Id);
-
-                Collection.InsertOne(DefaultUser);
-            }
+            return;
         }
 
-        public override bool Save(DTO.Databases.User Document)
+        public override bool Save(DTO.Databases.SubCategory Document)
         {
             if (string.IsNullOrWhiteSpace(Document.Id))
             {
                 return false;
             }
+
             var Query = QueryableCollection.Where(x => x.Id == Document.Id);
             if (Query.Count() > 0)
             {

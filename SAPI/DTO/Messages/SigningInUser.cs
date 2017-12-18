@@ -6,10 +6,13 @@
 
         public string Password { get; set; }
 
+        public bool AdminMode { get; set; }
+
         public SigningInUser()
         {
             Email = "NONE";
             Password = "DEFAULT";
+            AdminMode = false;
         }
     }
 }

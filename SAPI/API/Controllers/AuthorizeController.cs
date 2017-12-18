@@ -42,7 +42,7 @@ namespace API.Controllers
             return Result;
         }
 
-        public DTO.Tokens.SignedIn OnSignedIn(DTO.Databases.User User)
+        public DTO.Tokens.SignedIn OnSignedIn(DTO.Databases.User User, bool AdminMode = false)
         {
             // genrate new token here
             var SignInData = new DTO.Tokens.SignedIn
@@ -53,7 +53,8 @@ namespace API.Controllers
             };
             var Token = new DTO.Tokens.JWT(Sekrit.Value.TTL)
             {
-                sub = User.Id
+                sub = User.Id,
+                aud = (AdminMode) ? "Administrator" : "Default"
             };
 
             SignInData.Token = Sekrit.Value.Encode(Token);
@@ -105,6 +106,11 @@ namespace API.Controllers
                 {
                     Result.Messages.Add("Account", "Password mismatched");
                 }
+
+                if (Login.AdminMode && !User.Roles.Contains("Administrator"))
+                {
+                    Result.Messages.Add("Roles", "can't enter Admin Mode");
+                }
             }
 
             if (Result.Messages.Count > 0)
@@ -114,7 +120,7 @@ namespace API.Controllers
             }
             else
             {
-                Result.Data = OnSignedIn(User);
+                Result.Data = OnSignedIn(User, Login.AdminMode);
             }
             return Result;
         }

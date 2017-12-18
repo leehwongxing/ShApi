@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace API.Controllers
 {
