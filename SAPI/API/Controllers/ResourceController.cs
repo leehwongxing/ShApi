@@ -9,38 +9,16 @@ using System.Linq;
 namespace API.Controllers
 {
     [Route("api/resource")]
-    public class ResourceController : Controller
+    public class ResourceController : BaseController
     {
-        private IOptionsSnapshot<Configs.Mongo> Options { get; set; }
-
-        private IOptionsSnapshot<Configs.JWT> Sekrit { get; set; }
-
         private IOptionsSnapshot<Configs.Resource> ResMons { get; set; }
-
-        private IHttpContextAccessor Context { get; set; }
-
-        private string Authorization { get; set; }
-
-        private Databases.Mongo MongoClient { get; set; }
 
         private Repositories.Mongo.Resource ResRepo { get; set; }
 
-        private Repositories.Mongo.Token TokenRepo { get; set; }
-
-        public ResourceController(IOptionsSnapshot<Configs.Mongo> options, IOptionsSnapshot<Configs.JWT> secret, IOptionsSnapshot<Configs.Resource> resMons, IHttpContextAccessor httpContextAccessor)
+        public ResourceController(IOptionsSnapshot<Configs.Mongo> options, IOptionsSnapshot<Configs.JWT> secret, IOptionsSnapshot<Configs.Resource> resMons, IHttpContextAccessor httpContextAccessor) : base(options, secret, httpContextAccessor)
         {
-            Options = options;
-            Sekrit = secret;
-            Context = httpContextAccessor;
             ResMons = resMons;
-
-            MongoClient = new Databases.Mongo(Options);
             ResRepo = new Repositories.Mongo.Resource(MongoClient);
-            TokenRepo = new Repositories.Mongo.Token(MongoClient);
-
-            var Headers = Context.HttpContext.Request.Headers;
-            var Authorized = Headers.Where(x => x.Key == "Authorization").Select(x => x.Value).FirstOrDefault();
-            Authorization = (string.IsNullOrEmpty(Authorized)) ? "" : ((string)Authorized).Substring(7);
         }
 
         [HttpGet("download/{id}")]
@@ -68,27 +46,8 @@ namespace API.Controllers
         [HttpPost("delete/{id}")]
         public DTO.Messages.Wrapper DeleteFile(string id)
         {
-            var Result = new DTO.Messages.Wrapper
-            {
-                Data = id
-            };
-            DTO.Tokens.JWT Token = null;
-
-            var Signed = Sekrit.Value.Verify(Authorization);
-            if (Signed != 1)
-            {
-                Result.Messages.Add("Authorization", "failed");
-            }
-            else
-            {
-                Token = Sekrit.Value.Decode(Authorization);
-                var Session = TokenRepo.GetOne(Token.jti);
-
-                if (Session == null)
-                {
-                    Result.Messages.Add("Session", "not found");
-                }
-            }
+            var Result = AuthorizeResponse();
+            Result.Data = id;
 
             var Resource = ResRepo.GetOne(id);
             if (Resource == null)
@@ -100,49 +59,30 @@ namespace API.Controllers
             {
                 Result.Code = 400;
                 Result.Status = "Bad Request";
-
-                return Result;
             }
-
-            var Filter = new BsonDocument("_id", id);
-            ResRepo.Collection.DeleteOne(Filter);
-
-            Result.Messages.Add("File Deletion", ResMons.Value.Delete(id) ? "OK" : "Fail");
+            else
+            {
+                var Filter = new BsonDocument("_id", id);
+                ResRepo.Collection.DeleteOne(Filter);
+                Result.Messages.Add("File Deletion", ResMons.Value.Delete(id) ? "OK" : "Fail");
+            }
             return Result;
         }
 
         [HttpPost("upload")]
         public DTO.Messages.Wrapper UploadFiles(List<IFormFile> Uploading)
         {
-            var Result = new DTO.Messages.Wrapper();
-            DTO.Tokens.JWT Token = null;
+            var Result = AuthorizeResponse();
 
-            var Signed = Sekrit.Value.Verify(Authorization);
-            if (Signed != 1)
+            if (Uploading == null || Uploading.Count == 0)
             {
-                Result.Messages.Add("Authorization", "failed");
-            }
-            else
-            {
-                Token = Sekrit.Value.Decode(Authorization);
-                var Session = TokenRepo.GetOne(Token.jti);
-
-                if (Session == null)
-                {
-                    Result.Messages.Add("Session", "not found");
-                }
-
-                if (Uploading == null || Uploading.Count == 0)
-                {
-                    Result.Messages.Add("Uploading", "file(s) not found");
-                }
+                Result.Messages.Add("Uploading", "file(s) not found");
             }
 
             if (Result.Messages.Count > 0)
             {
                 Result.Code = 400;
                 Result.Status = "Bad Request";
-
                 return Result;
             }
 
@@ -158,17 +98,15 @@ namespace API.Controllers
                     Owner = Token.sub
                 };
 
+                Files.Add(UploadedResource);
                 using (var FileStream = ResMons.Value.CreateWriteStream(UploadedResource.Id))
                 {
                     Uploaded.CopyTo(FileStream);
                     FileStream.Flush();
                 }
-                Files.Add(UploadedResource);
             }
-
-            ResRepo.Collection.InsertMany(Files);
             Result.Data = Files;
-
+            ResRepo.Collection.InsertMany(Files);
             return Result;
         }
     }

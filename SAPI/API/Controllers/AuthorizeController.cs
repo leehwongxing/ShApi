@@ -8,145 +8,37 @@ using System.Linq;
 namespace API.Controllers
 {
     [Route("api/auth")]
-    public class AuthorizeController : Controller
+    public class AuthorizeController : BaseController
     {
-        private IOptionsSnapshot<Configs.Mongo> Options { get; set; }
-
-        private IOptionsSnapshot<Configs.JWT> Sekrit { get; set; }
-
-        private IHttpContextAccessor Context { get; set; }
-
-        private string Authorization { get; set; }
-
-        private Databases.Mongo MongoClient { get; set; }
-
         private Repositories.Mongo.User UserRepo { get; set; }
 
-        private Repositories.Mongo.Token TokenRepo { get; set; }
-
-        public AuthorizeController(IOptionsSnapshot<Configs.Mongo> options, IOptionsSnapshot<Configs.JWT> secret, IHttpContextAccessor httpContextAccessor)
+        public AuthorizeController(IOptionsSnapshot<Configs.Mongo> options, IOptionsSnapshot<Configs.JWT> secret, IHttpContextAccessor httpContextAccessor) : base(options, secret, httpContextAccessor)
         {
-            Options = options;
-            Sekrit = secret;
-            Context = httpContextAccessor;
-
-            MongoClient = new Databases.Mongo(Options);
             UserRepo = new Repositories.Mongo.User(MongoClient);
-            TokenRepo = new Repositories.Mongo.Token(MongoClient);
-
-            var Headers = Context.HttpContext.Request.Headers;
-            var Authorized = Headers.Where(x => x.Key == "Authorization").Select(x => x.Value).FirstOrDefault();
-            Authorization = (string.IsNullOrEmpty(Authorized)) ? "" : ((string)Authorized).Substring(7);
         }
 
         [HttpGet("signout")]
         public DTO.Messages.Wrapper SignOut()
         {
-            var Result = new DTO.Messages.Wrapper
+            var Result = AuthorizeResponse();
+            Result.Data = Authorization;
+
+            if (Result.Messages.Count == 0)
             {
-                Data = Authorization
-            };
-
-            var Verification = Sekrit.Value.Verify(Authorization);
-
-            switch (Verification)
-            {
-                case 1:
-                    break;
-
-                case 0:
-                    Result.Messages.Add("Authorization", "Token's header not found");
-                    break;
-
-                case -1:
-                    Result.Messages.Add("Expiration", "Token expirated");
-                    break;
-
-                case -2:
-                    Result.Messages.Add("Signature", "Token can't be verified");
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (Result.Messages.Count > 0)
-            {
-                Result.Status = "Bad Request";
-                Result.Code = 400;
-            }
-            else
-            {
-                var Token = Sekrit.Value.Decode(Authorization);
-                var Count = TokenRepo.QueryableCollection.Where(x => x.TokenId == Token.jti).Count();
-                if (Count == 0)
-                {
-                    Result.Messages.Add("Session", "not found");
-                    Result.Status = "Bad Request";
-                    Result.Code = 400;
-                }
-                else
-                {
-                    var Filter = new BsonDocument("_id", Token.jti);
-                    TokenRepo.Collection.DeleteOne(Filter);
-                    Result.Messages.Add("Session", "signed out");
-                }
+                var Filter = new BsonDocument("_id", Token.jti);
+                TokenRepo.Collection.DeleteOne(Filter);
+                Result.Messages.Add("Session", "signed out");
             }
 
             return Result;
         }
 
         [HttpGet("verify")]
+        [HttpPost("verify")]
         public DTO.Messages.Wrapper VerifyToken()
         {
-            var Result = new DTO.Messages.Wrapper
-            {
-                Data = Authorization
-            };
-
-            var Verification = Sekrit.Value.Verify(Authorization);
-
-            switch (Verification)
-            {
-                case 1:
-                    break;
-
-                case 0:
-                    Result.Messages.Add("Authorization", "Token's header not found");
-                    break;
-
-                case -1:
-                    Result.Messages.Add("Expiration", "Token expirated");
-                    break;
-
-                case -2:
-                    Result.Messages.Add("Signature", "Token can't be verified");
-                    break;
-
-                default:
-                    break;
-            }
-
-            if (Result.Messages.Count > 0)
-            {
-                Result.Status = "Bad Request";
-                Result.Code = 400;
-            }
-            else
-            {
-                var Token = Sekrit.Value.Decode(Authorization);
-                var Count = TokenRepo.QueryableCollection.Where(x => x.TokenId == Token.jti).Count();
-                if (Count == 0)
-                {
-                    Result.Messages.Add("Session", "not found");
-                    Result.Status = "Bad Request";
-                    Result.Code = 400;
-                }
-                else
-                {
-                    Result.Messages.Add("Verification", "OK");
-                }
-            }
+            var Result = AuthorizeResponse();
+            Result.Data = Authorization;
             return Result;
         }
 
@@ -198,13 +90,9 @@ namespace API.Controllers
                 }
             }
 
-            if (Result.Messages.Count > 0)
-            {
-                Result.Status = "Bad Request";
-                Result.Code = 400;
-                return Result;
-            }
-            else
+            DTO.Databases.User User = null;
+
+            if (Result.Messages.Count == 0)
             {
                 var Count = UserRepo.QueryableCollection.Where(x => x.Email == Login.Email).Count();
                 if (Count == 0)
@@ -212,15 +100,22 @@ namespace API.Controllers
                     Result.Messages.Add("Account", "Email is not registered");
                 }
 
-                var User = UserRepo.QueryableCollection.Where(x => x.Email == Login.Email).First();
+                User = UserRepo.QueryableCollection.Where(x => x.Email == Login.Email).First();
                 if (!Configs.Hashing.Compare(Login.Password, User.Id, User.Password))
                 {
                     Result.Messages.Add("Account", "Password mismatched");
                 }
-
-                Result.Data = OnSignedIn(User);
             }
 
+            if (Result.Messages.Count > 0)
+            {
+                Result.Status = "Bad Request";
+                Result.Code = 400;
+            }
+            else
+            {
+                Result.Data = OnSignedIn(User);
+            }
             return Result;
         }
 
