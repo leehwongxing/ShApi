@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "5a390d330fe055000c07f9b5",
+    "Owner": "5a390d330fe055000c07f9b5",
+    "Group": "USER",
+    "CreatedAt": 1513688371,
+    "ModifiedAt": 1513688371,
+    "Email": "leehwongxing@yandex.ru",
+    "Password": "vdmZq7u9GgMbhwi2IFP2rwlcGTFgTlWTBF9PuNYcuMfg+TD8OX0DrropdUUWPmusH4sV75RlrjExPrsT1fUlNQ==",
+    "Fullname": "leehwongxing",
+    "Roles": [ "Default", "Administrator" ],
+    "Addresses": [],
+    "PaymentAddress": "",
+    "DeliveryAddress": "",
+    "Birthday": "",
+    "Gender": 0
+  }
+]

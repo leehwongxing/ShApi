@@ -150,7 +150,7 @@ namespace API.Controllers
                 }
                 if (string.IsNullOrWhiteSpace(Registry.Fullname))
                 {
-                    Result.Messages.Add("FullName", "can't be empty");
+                    Result.Messages.Add("Fullname", "can't be empty");
                 }
                 if (Registry.Gender < 0 || Registry.Gender > 1)
                 {

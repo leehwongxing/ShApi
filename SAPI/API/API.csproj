@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="UploadedResources\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

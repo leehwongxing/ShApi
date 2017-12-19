@@ -39,11 +39,6 @@ namespace API.Repositories.Mongo
             }
         }
 
-        public override void Migration()
-        {
-            return;
-        }
-
         public override bool Save(DTO.Databases.Resource Document)
         {
             if (string.IsNullOrWhiteSpace(Document.Id))

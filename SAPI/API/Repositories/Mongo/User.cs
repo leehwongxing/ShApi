@@ -7,7 +7,6 @@ namespace API.Repositories.Mongo
     {
         public User(Databases.Mongo client) : base(client, "Users")
         {
-            Migration();
         }
 
         public override bool Delete(DTO.Databases.User Document)
@@ -38,27 +37,6 @@ namespace API.Repositories.Mongo
             else
             {
                 return Queried.First();
-            }
-        }
-
-        public override void Migration()
-        {
-            var Count = QueryableCollection.LongCount();
-
-            if (Count == 0)
-            {
-                var DefaultUser = new DTO.Databases.User()
-                {
-                    Email = "leehwongxing@yandex.ru",
-                    Fullname = "leehwongxing"
-                };
-
-                DefaultUser.Roles.Add("Administrator");
-                DefaultUser.Roles.Add("Default");
-
-                DefaultUser.Password = Configs.Hashing.Hash("Bo Trong Cung Duoc", DefaultUser.Id);
-
-                Collection.InsertOne(DefaultUser);
             }
         }
 
