@@ -1,13 +1,11 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace DTO.Databases
+namespace DTO.Messages
 {
-    public class Item : Owned
+    public class Product
     {
-        [BsonId]
-        public string Id { get; set; }
-
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -20,19 +18,14 @@ namespace DTO.Databases
 
         public HashSet<string> SubCategories { get; set; }
 
-        public Dictionary<string, Promotion> Promotions { get; set; }
-
-        public Item() : base()
+        public Product() : base()
         {
-            Id = Generator.Id();
             Name = "";
             Description = "";
             Price = 0;
             Images = new HashSet<string>();
             Categories = new HashSet<string>();
             SubCategories = new HashSet<string>();
-            Promotions = new Dictionary<string, Promotion>();
-            Group = "ITEM";
         }
     }
 }

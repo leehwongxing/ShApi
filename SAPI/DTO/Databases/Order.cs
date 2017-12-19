@@ -18,7 +18,7 @@ namespace DTO.Databases
 
         public Status OrderStatus { get; set; }
 
-        public Dictionary<Item, int> Ordered { get; set; }
+        public Dictionary<Product, int> Ordered { get; set; }
 
         public Order() : base()
         {
@@ -28,7 +28,7 @@ namespace DTO.Databases
             Payment = null;
             Note = "";
             OrderStatus = new Status();
-            Ordered = new Dictionary<Item, int>();
+            Ordered = new Dictionary<Product, int>();
             Group = "ORDER";
         }
     }

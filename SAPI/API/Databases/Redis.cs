@@ -17,15 +17,19 @@ namespace API.Databases
         {
             Options = options.Value;
 
-            var Configuration = ConfigurationOptions.Parse(Options.ConnectString);
-
-            if (!string.IsNullOrEmpty(Options.Username) && !string.IsNullOrEmpty(Options.Password) && !(Options.Database >= 0))
+            var Configs = ConfigurationOptions.Parse(Options.ConnectString);
+            Configs.ClientName = Options.Username;
+            Configs.AllowAdmin = false;
+            Configs.ConnectTimeout = 10000;
+            if (Options.Database >= 0)
             {
-                Configuration.DefaultDatabase = Options.Database;
-                Configuration.ClientName = Options.Username;
-                Configuration.Password = Options.Password;
+                Configs.DefaultDatabase = Options.Database;
             }
-            Connection = ConnectionMultiplexer.Connect(Configuration);
+            if (!string.IsNullOrEmpty(Options.Password))
+            {
+                Configs.Password = Options.Password;
+            }
+            Connection = ConnectionMultiplexer.Connect(Configs);
         }
 
         private IDatabase GetDatabase()

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Jil;
+using System;
 using System.Collections.Generic;
 
 namespace API.Repositories.Redis
@@ -7,23 +8,74 @@ namespace API.Repositories.Redis
     {
         private string BucketName { get; set; }
 
+        private int TTL { get { return Client.TTL; } }
+
         private Databases.Redis Client { get; set; }
 
-        public string TypeName { get { return typeof(T).Name.Replace("-", "").Replace(".", "_").Replace("__", "_"); } }
+        protected string TypeName { get { return typeof(T).Name; } }
 
         public Base(Databases.Redis client, string Name = "")
         {
             Client = client ?? throw new Exception("Injected RedisClient mustn't be null");
-
-            BucketName = Name ?? TypeName;
+            BucketName = DTO.Generator.StripAccents(Name ?? TypeName).Replace(" ", "_");
         }
 
-        public abstract void Save(T Document);
+        public string BucketKey(Object Key)
+        {
+            return string.Join(":___", BucketName, JSON.Serialize(Key, Options.ISO8601IncludeInherited));
+        }
 
-        public abstract void Delete(string Key);
+        public bool Save(T Document, Object Id)
+        {
+            return Client.Database.StringSet(BucketKey(Id), JSON.Serialize(Document, Options.ISO8601IncludeInherited), TimeSpan.FromSeconds(TTL));
+        }
 
-        public abstract T GetOne(string Key);
+        public bool SaveList(IEnumerable<T> Documents, Object Id)
+        {
+            return Client.Database.StringSet(BucketKey(Id), JSON.Serialize(Documents, Options.ISO8601IncludeInherited), TimeSpan.FromSeconds(TTL));
+        }
 
-        public abstract IEnumerable<T> GetList(string Key, int Position);
+        public bool Delete(Object Id)
+        {
+            return Client.Database.KeyDelete(BucketKey(Id));
+        }
+
+        public T Get(Object Id)
+        {
+            var Key = BucketKey(Id);
+            if (!Client.Database.KeyExists(Key))
+            {
+                return default(T);
+            }
+
+            try
+            {
+                var Data = Client.Database.StringGet(Key);
+                return JSON.Deserialize<T>(Data);
+            }
+            catch (Exception)
+            {
+                return default(T);
+            }
+        }
+
+        public IEnumerable<T> GetList(Object Id)
+        {
+            var Key = BucketKey(Id);
+            if (!Client.Database.KeyExists(Key))
+            {
+                return null;
+            }
+
+            try
+            {
+                var Data = Client.Database.StringGet(Key);
+                return JSON.Deserialize<IEnumerable<T>>(Data);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }

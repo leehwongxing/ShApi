@@ -15,7 +15,7 @@
         public Redis()
         {
             ConnectString = "";
-            Database = 1;
+            Database = 0;
             Username = "";
             Password = "";
             TTL = 300;

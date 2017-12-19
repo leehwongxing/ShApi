@@ -25,7 +25,7 @@ namespace DTO.Databases
 
         public bool Shown { get; set; }
 
-        public float Score { get { return Scoring(); } }
+        public float Score { get { return Scored(); } }
 
         public Promotion() : base()
         {
@@ -41,7 +41,7 @@ namespace DTO.Databases
             Group = "PROMOTION";
         }
 
-        public float Scoring()
+        protected float Scored()
         {
             var Days = (EndDate - StartDate).Days;
             var TimeDiff = EndTime - StartTime;
@@ -51,7 +51,7 @@ namespace DTO.Databases
             {
                 return 0;
             }
-            return 24 / (float)(24 * Days + AffectedTime);
+            return (Shown ? 1 : -1) * 24 / (float)(24 * Days + AffectedTime);
         }
     }
 }
