@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DTO.Databases
 {
-    public class Recommended : Owned
+    public class Recommendation : Owned
     {
         [BsonId]
         public string Id { get; set; }
@@ -12,12 +12,12 @@ namespace DTO.Databases
 
         public string Reason { get; set; }
 
-        public Recommended() : base()
+        public Recommendation() : base()
         {
             Id = Generator.Id();
             List = new HashSet<string>();
             Reason = "";
-            Group = "RECOMMENDED";
+            Group = "RECOMMENDATION";
         }
     }
 }

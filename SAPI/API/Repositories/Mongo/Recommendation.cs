@@ -3,13 +3,13 @@ using System.Linq;
 
 namespace API.Repositories.Mongo
 {
-    public class Product : Base<DTO.Databases.Product>
+    public class Recommendation : Base<DTO.Databases.Recommendation>
     {
-        public Product(Databases.Mongo client) : base(client, "Products")
+        public Recommendation(Databases.Mongo client) : base(client, "Recommendations")
         {
         }
 
-        public override bool Delete(DTO.Databases.Product Document)
+        public override bool Delete(DTO.Databases.Recommendation Document)
         {
             if (string.IsNullOrWhiteSpace(Document.Id))
             {
@@ -21,7 +21,7 @@ namespace API.Repositories.Mongo
             return true;
         }
 
-        public override DTO.Databases.Product GetOne(string Id)
+        public override DTO.Databases.Recommendation GetOne(string Id)
         {
             if (string.IsNullOrWhiteSpace(Id))
             {
@@ -36,7 +36,7 @@ namespace API.Repositories.Mongo
             return Query.First();
         }
 
-        public override bool Save(DTO.Databases.Product Document)
+        public override bool Save(DTO.Databases.Recommendation Document)
         {
             if (string.IsNullOrWhiteSpace(Document.Id))
             {
@@ -52,8 +52,9 @@ namespace API.Repositories.Mongo
                     return false;
                 }
             }
+
             var Filter = new BsonDocument("_id", Document.Id);
-            Collection.ReplaceOne(Filter, Document, new MongoDB.Driver.UpdateOptions { IsUpsert = true });
+            Collection.ReplaceOne(Filter, Document);
             return true;
         }
     }
