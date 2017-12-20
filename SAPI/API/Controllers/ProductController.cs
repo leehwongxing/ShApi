@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace API.Controllers
 {
@@ -141,9 +143,41 @@ namespace API.Controllers
 
         [HttpGet("onsale")]
         [HttpPost("onsale")]
-        public DTO.Messages.Wrapper GetOnSale()
+        public DTO.Messages.Wrapper GetOnSale([FromBody] DTO.Messages.SearchPage Search = null)
         {
-            return null;
+            var Result = new DTO.Messages.Wrapper();
+
+            if (Search == null)
+            {
+                Search = new DTO.Messages.SearchPage();
+            }
+
+            IQueryable<DTO.Databases.Product> Query = null;
+
+            if (string.IsNullOrWhiteSpace(Search.SearchTerm))
+            {
+                Query = MongoItems.QueryableCollection;
+            }
+            else
+            {
+                var SearchKey = new DTO.Projection.Search { SearchTerm = Search.SearchTerm };
+                var Cached = RedisItems.GetList(SearchKey);
+                if (Cached == null || Cached.Count() == 0)
+                {
+                    Cached = MongoItems.Collection
+                    .FindSync(Builders<DTO.Databases.Product>.Filter.Text(Search.SearchTerm))
+                    .ToList();
+
+                    RedisItems.SaveList(Cached, SearchKey);
+                    Query = Cached.AsQueryable();
+                }
+                else
+                {
+                    Query = Cached.AsQueryable();
+                }
+            }
+
+            return Result;
         }
     }
 }

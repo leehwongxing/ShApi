@@ -40,7 +40,7 @@ namespace API.Repositories.Mongo
             return GetCollection().AsQueryable();
         }
 
-        public void MigrateData()
+        protected virtual void MigrateData()
         {
             var FilePath = Path.Combine(MigrationFolder, CollectionName);
             if (!File.Exists(FilePath))

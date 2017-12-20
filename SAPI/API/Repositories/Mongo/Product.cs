@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using System.Linq;
 
 namespace API.Repositories.Mongo
@@ -7,6 +8,12 @@ namespace API.Repositories.Mongo
     {
         public Product(Databases.Mongo client) : base(client, "Products")
         {
+        }
+
+        protected override void MigrateData()
+        {
+            Collection.Indexes.CreateOne(Builders<DTO.Databases.Product>.IndexKeys.Text(x => x.Name));
+            base.MigrateData();
         }
 
         public override bool Delete(DTO.Databases.Product Document)

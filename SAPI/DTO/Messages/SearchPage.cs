@@ -16,7 +16,7 @@ namespace DTO.Messages
 
         public int Page { get; set; }
 
-        public int ItemLimit { get; set; }
+        public int PageLimit { get; set; }
 
         public SearchPage()
         {
@@ -26,7 +26,7 @@ namespace DTO.Messages
             MinPrice = 1;
             MaxPrice = long.MaxValue;
             Page = 0;
-            ItemLimit = 24;
+            PageLimit = 24;
         }
     }
 }
