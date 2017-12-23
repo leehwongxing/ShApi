@@ -136,9 +136,62 @@ namespace API.Controllers
 
         [HttpGet("all")]
         [HttpPost("all")]
-        public DTO.Messages.Wrapper GetAll()
+        public DTO.Messages.Wrapper GetAll([FromBody] DTO.Messages.SearchPage Search = null)
         {
-            return null;
+            var Result = AuthorizeResponse(new HashSet<string> { "Administrator" });
+            if (Search == null)
+            {
+                Search = new DTO.Messages.SearchPage();
+            }
+            else
+            {
+                var Max = (Search.MaxPrice > Search.MinPrice) ? Search.MaxPrice : Search.MinPrice;
+                var Min = (Search.MaxPrice < Search.MinPrice) ? Search.MaxPrice : Search.MinPrice;
+
+                Search.MaxPrice = Max;
+                Search.MinPrice = Min;
+            }
+            IQueryable<DTO.Databases.Product> Query = null;
+
+            if (string.IsNullOrWhiteSpace(Search.SearchTerm))
+            {
+                Query = MongoItems.QueryableCollection;
+            }
+            else
+            {
+                var SearchKey = new DTO.Projection.Search
+                {
+                    SearchTerm = Search.SearchTerm,
+                    Categories = Search.Categories,
+                    SubCategories = Search.SubCategories
+                };
+
+                var Cached = RedisItems.GetList(SearchKey);
+                if (Cached == null || Cached.Count() == 0)
+                {
+                    Cached = MongoItems.SearchThru(Search, false);
+                    RedisItems.SaveList(Cached, SearchKey);
+                    Query = Cached.AsQueryable();
+                }
+                else
+                {
+                    Query = Cached.AsQueryable();
+                }
+
+                var Offset = Query.Count() < (Search.Page + 1) * Search.PageLimit ? Query.Count() : (Search.Page + 1) * Search.PageLimit;
+                Offset = (Offset - Search.PageLimit < 0) ? 0 : Offset - Search.PageLimit;
+                var Taken = Query.Count() - Offset;
+
+                Query = Query.Skip(Offset).Take(Taken);
+                Result.Data = Query;
+
+                if (Query.Count() == 0)
+                {
+                    Result.Code = 404;
+                    Result.Status = "Not Found";
+                }
+            }
+            return Result;
         }
 
         [HttpGet("onsale")]
@@ -151,6 +204,14 @@ namespace API.Controllers
             {
                 Search = new DTO.Messages.SearchPage();
             }
+            else
+            {
+                var Max = (Search.MaxPrice > Search.MinPrice) ? Search.MaxPrice : Search.MinPrice;
+                var Min = (Search.MaxPrice < Search.MinPrice) ? Search.MaxPrice : Search.MinPrice;
+
+                Search.MaxPrice = Max;
+                Search.MinPrice = Min;
+            }
 
             IQueryable<DTO.Databases.Product> Query = null;
 
@@ -160,14 +221,17 @@ namespace API.Controllers
             }
             else
             {
-                var SearchKey = new DTO.Projection.Search { SearchTerm = Search.SearchTerm };
+                var SearchKey = new DTO.Projection.Search
+                {
+                    SearchTerm = Search.SearchTerm,
+                    Categories = Search.Categories,
+                    SubCategories = Search.SubCategories
+                };
+
                 var Cached = RedisItems.GetList(SearchKey);
                 if (Cached == null || Cached.Count() == 0)
                 {
-                    Cached = MongoItems.Collection
-                    .FindSync(Builders<DTO.Databases.Product>.Filter.Text(Search.SearchTerm))
-                    .ToList();
-
+                    Cached = MongoItems.SearchThru(Search);
                     RedisItems.SaveList(Cached, SearchKey);
                     Query = Cached.AsQueryable();
                 }
@@ -175,8 +239,20 @@ namespace API.Controllers
                 {
                     Query = Cached.AsQueryable();
                 }
-            }
 
+                var Offset = Query.Count() < (Search.Page + 1) * Search.PageLimit ? Query.Count() : (Search.Page + 1) * Search.PageLimit;
+                Offset = (Offset - Search.PageLimit < 0) ? 0 : Offset - Search.PageLimit;
+                var Taken = Query.Count() - Offset;
+
+                Query = Query.Skip(Offset).Take(Taken);
+                Result.Data = Query;
+
+                if (Query.Count() == 0)
+                {
+                    Result.Code = 404;
+                    Result.Status = "Not Found";
+                }
+            }
             return Result;
         }
     }

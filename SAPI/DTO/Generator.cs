@@ -50,7 +50,10 @@ namespace DTO
 
         public static string StripAccents(string Input = "")
         {
-            var InputBytes = Encoding.Convert(Encoding.UTF8, Encoding.ASCII, Encoding.UTF8.GetBytes(StripVietnamese(Input)));
+            var InputBytes = Encoding.Convert(
+                Encoding.UTF8,
+                Encoding.ASCII,
+                Encoding.UTF8.GetBytes(StripVietnamese(Input)));
             var Output = Encoding.UTF8.GetString(InputBytes).Replace("?", "");
             var Chars = "!@#$%^&*()_+|,.<>/?:;'\"[{]}";
 

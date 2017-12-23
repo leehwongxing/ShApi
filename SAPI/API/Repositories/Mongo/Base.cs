@@ -50,13 +50,13 @@ namespace API.Repositories.Mongo
 
             try
             {
-                HashSet<T> Data = null;
-                using (var Stream = new StreamReader(File.OpenRead(FilePath), Encoding.UTF8, true, 10240))
-                {
-                    Data = JSON.Deserialize<HashSet<T>>(Stream.ReadToEnd());
-                }
                 if (QueryableCollection.Count() == 0)
                 {
+                    HashSet<T> Data = null;
+                    using (var Stream = new StreamReader(File.OpenRead(FilePath), Encoding.UTF8, true, 10240))
+                    {
+                        Data = JSON.Deserialize<HashSet<T>>(Stream.ReadToEnd());
+                    }
                     Collection.InsertMany(Data);
                 }
             }

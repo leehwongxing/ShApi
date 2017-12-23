@@ -159,17 +159,18 @@ namespace API.Controllers
                             .SelectMany(x => x.List)
                             .Distinct()
                             .ToList();
+            List.Remove(id);
             if (List.Count == 0)
             {
                 Result.Code = 404;
                 Result.Status = "Not Found";
-                Result.Data = new HashSet<DTO.Projection.Category>();
+                Result.Data = null;
 
                 return Result;
             }
 
             List.Shuffle();
-            var Conditions = List.Take((List.Count < 4) ? List.Count : 4);
+            var Conditions = List.Take((List.Count < 5) ? List.Count : 5);
 
             var Return = ProductRepo.QueryableCollection
                             .Where(x => Conditions.Contains(x.Id))

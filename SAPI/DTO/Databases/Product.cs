@@ -1,5 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DTO.Databases
 {
@@ -33,6 +35,26 @@ namespace DTO.Databases
             SubCategories = new HashSet<string>();
             Promotions = new Dictionary<string, Promotion>();
             Group = "ITEM";
+        }
+
+        public float Scored()
+        {
+            var Now = DateTime.UtcNow;
+            var ActivePromo = Promotions.Values.Where(x => (
+                        x.StartDate >= Now &&
+                        x.EndDate <= Now &&
+                        x.DaysOfWeek.Contains((int)Now.DayOfWeek) &&
+                        x.StartTime <= Now.TimeOfDay &&
+                        x.EndTime > Now.TimeOfDay));
+
+            if (ActivePromo.Count() > 0)
+            {
+                return ActivePromo.Sum(x => x.Scored());
+            }
+            else
+            {
+                return 1; // hiện
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace API.Repositories.Mongo
@@ -8,6 +9,37 @@ namespace API.Repositories.Mongo
     {
         public Product(Databases.Mongo client) : base(client, "Products")
         {
+        }
+
+        public IEnumerable<DTO.Databases.Product> SearchThru(DTO.Messages.SearchPage Search, bool TimeBased = true)
+        {
+            var Cached = Collection
+                    .FindSync(Builders<DTO.Databases.Product>.Filter.Text(Search.SearchTerm))
+                    .ToList();
+
+            var Query = Cached.AsQueryable();
+            if (Search.MaxPrice < long.MaxValue)
+            {
+                Query.Where(x => x.Price <= Search.MaxPrice);
+            }
+            if (Search.MinPrice > 0)
+            {
+                Query.Where(x => x.Price >= Search.MinPrice);
+            }
+            if (Search.Categories.Count > 0)
+            {
+                Query = Query.Where(x => Search.Categories.Intersect(x.Categories).Count() > 0);
+            }
+            if (Search.SubCategories.Count > 0)
+            {
+                Query = Query.Where(x => Search.SubCategories.Intersect(x.SubCategories).Count() > 0);
+            }
+            if (TimeBased)
+            {
+                Query.Where(x => x.Scored() > 0);
+            }
+
+            return Query;
         }
 
         protected override void MigrateData()
