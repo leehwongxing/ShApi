@@ -10,9 +10,9 @@ namespace DTO.Databases
 
         public string OrdererId { get; set; }
 
-        public Address Delivery { get; set; }
+        public Messages.TemporaryAddress Delivery { get; set; }
 
-        public Address Payment { get; set; }
+        public Messages.TemporaryAddress Payment { get; set; }
 
         public string Note { get; set; }
 

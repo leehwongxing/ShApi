@@ -106,21 +106,134 @@ namespace API.Controllers
             return Result;
         }
 
-        public DTO.Messages.Wrapper RemoveOne()
+        [HttpPost("remove")]
+        public DTO.Messages.Wrapper RemoveOne(DTO.Messages.AddToCart ToBeRemoved = null)
         {
-            return null;
+            var Result = AuthorizeResponse();
+
+            if (ToBeRemoved == null)
+            {
+                Result.Messages.Add("PostBody", "can't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(ToBeRemoved.ProductId))
+            {
+                Result.Messages.Add("ProductId", "can't be empty");
+            }
+            if (ToBeRemoved.Quantity == 0)
+            {
+                Result.Messages.Add("Quantity", "can't be Zero (0)");
+            }
+
+            if (Result.Messages.Count > 0)
+            {
+                Result.Code = 400;
+                Result.Status = "Bad Request";
+                return Result;
+            }
+
+            var Session = SessionRepo.GetOne(Token.jti);
+            var Removed = false;
+            if (ToBeRemoved.Quantity < 0)
+            {
+                Session.Cart.Remove(ToBeRemoved.ProductId);
+                Removed = true;
+            }
+            else
+            {
+                Session.Cart.TryGetValue(ToBeRemoved.ProductId, out int Left);
+                if (Left < 1 || Left - ToBeRemoved.Quantity < 1)
+                {
+                    Session.Cart.Remove(ToBeRemoved.ProductId);
+                    Removed = true;
+                }
+                else
+                {
+                    Session.Cart[ToBeRemoved.ProductId] = (Left - ToBeRemoved.Quantity);
+                    Removed = false;
+                }
+            }
+            SessionRepo.Save(Session);
+
+            Result.Messages.Add("ItemStatus", Removed ? "Ok" : "Reduced");
+            Result.Data = ToBeRemoved;
+            return Result;
         }
 
-        public DTO.Messages.Wrapper AddDeliveryAddress()
+        [HttpPost("address/delivery")]
+        public DTO.Messages.Wrapper AddDeliveryAddress(DTO.Messages.TemporaryAddress address = null)
         {
-            return null;
+            var Result = AuthorizeResponse();
+
+            if (address == null)
+            {
+                Result.Messages.Add("PostBody", "It mustn't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(address.Location))
+            {
+                Result.Messages.Add("Location", "It mustn't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(address.Recipent))
+            {
+                Result.Messages.Add("Recipent", "It mustn't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(address.Phone))
+            {
+                Result.Messages.Add("Phone", "It mustn't be empty");
+            }
+
+            if (Result.Messages.Count > 0)
+            {
+                Result.Code = 400;
+                Result.Status = "Bad Request";
+                return Result;
+            }
+
+            var Session = SessionRepo.GetOne(Token.jti);
+            Session.DeliveryAddress = address;
+            var Saved = SessionRepo.Save(Session);
+
+            Result.Messages.Add("DeliveryAddress", (Saved ? "Ok" : "Fail"));
+            return Result;
         }
 
-        public DTO.Messages.Wrapper AddPaymentAddress()
+        [HttpPost("address/payment")]
+        public DTO.Messages.Wrapper AddPaymentAddress(DTO.Messages.TemporaryAddress address = null)
         {
-            return null;
+            var Result = AuthorizeResponse();
+
+            if (address == null)
+            {
+                Result.Messages.Add("PostBody", "It mustn't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(address.Location))
+            {
+                Result.Messages.Add("Location", "It mustn't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(address.Recipent))
+            {
+                Result.Messages.Add("Recipent", "It mustn't be empty");
+            }
+            if (string.IsNullOrWhiteSpace(address.Phone))
+            {
+                Result.Messages.Add("Phone", "It mustn't be empty");
+            }
+
+            if (Result.Messages.Count > 0)
+            {
+                Result.Code = 400;
+                Result.Status = "Bad Request";
+                return Result;
+            }
+
+            var Session = SessionRepo.GetOne(Token.jti);
+            Session.DeliveryAddress = address;
+            var Saved = SessionRepo.Save(Session);
+
+            Result.Messages.Add("PaymentAddress", (Saved ? "Ok" : "Fail"));
+            return Result;
         }
 
+        [HttpPost("checkout")]
         public DTO.Messages.Wrapper MakeOrder()
         {
             return null;

@@ -12,9 +12,9 @@ namespace DTO.Databases
 
         public Dictionary<string, int> Cart { get; set; }
 
-        public Address PaymentAddress { get; set; }
+        public Messages.TemporaryAddress PaymentAddress { get; set; }
 
-        public Address DeliveryAddress { get; set; }
+        public Messages.TemporaryAddress DeliveryAddress { get; set; }
 
         public Token()
         {
