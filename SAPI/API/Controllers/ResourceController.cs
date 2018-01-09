@@ -7,7 +7,7 @@ using System.IO;
 
 namespace API.Controllers
 {
-    [Route("api/resource")]
+    [Route("resource")]
     public class ResourceController : BaseController
     {
         private IOptionsSnapshot<Configs.Resource> ResMons { get; set; }

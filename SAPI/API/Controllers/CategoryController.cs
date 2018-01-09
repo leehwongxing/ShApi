@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace API.Controllers
 {
-    [Route("api/category")]
+    [Route("category")]
     public class CategoryController : BaseController
     {
         private Repositories.Mongo.Category CatRepo { get; set; }

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace API.Controllers
 {
-    [Route("api/cart")]
+    [Route("cart")]
     public class SessionController : BaseController
     {
         private Repositories.Mongo.Token SessionRepo { get; set; }

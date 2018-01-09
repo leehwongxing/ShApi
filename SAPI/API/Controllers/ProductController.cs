@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace API.Controllers
 {
-    [Route("api/product")]
+    [Route("product")]
     public class ProductController : BaseController
     {
         private Repositories.Mongo.Product MongoItems { get; set; }

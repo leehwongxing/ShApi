@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace API.Controllers
 {
-    [Route("api/auth")]
+    [Route("auth")]
     public class AuthorizeController : BaseController
     {
         private Repositories.Mongo.User UserRepo { get; set; }

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace API.Controllers
 {
-    [Route("api/subcategory")]
+    [Route("subcategory")]
     public class SubCategoryController : BaseController
     {
         private Repositories.Mongo.SubCategory SubRepo { get; set; }

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace API.Controllers
 {
-    [Route("api/recommendation")]
+    [Route("recommendation")]
     public class RecommendationController : BaseController
     {
         private Repositories.Mongo.Recommendation Re2po { get; set; }
