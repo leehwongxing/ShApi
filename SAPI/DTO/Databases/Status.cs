@@ -1,37 +1,70 @@
-﻿using System.Collections.Generic;
-
-namespace DTO.Databases
+﻿namespace DTO.Databases
 {
     public class Status
     {
-        public string[] Allowed { get; set; }
+        public Flag Received { get; set; }
 
-        public HashSet<Flag> Flags { get; set; }
+        public Flag Prepared { get; set; }
 
-        public long Received { get; set; }
+        public Flag Delivering { get; set; }
 
-        public long Prepared { get; set; }
+        public Flag FulFilled { get; set; }
 
-        public long Delivering { get; set; }
-
-        public long FulFilled { get; set; }
-
-        public long Canceled { get; set; }
+        public Flag Canceled { get; set; }
 
         public Status()
         {
-            Allowed = new string[] { "Received", "Prepared", "Delivering", "FulFilled", "Canceled" };
-            Flags = new HashSet<Flag>();
-            Received = Generator.Tick();
-            Prepared = -1;
-            Delivering = -1;
-            FulFilled = -1;
-            Canceled = -1;
+            Received = null;
+            Prepared = null;
+            Delivering = null;
+            FulFilled = null;
+            Canceled = null;
         }
 
         public bool IsCanceled()
         {
-            return Canceled > 0 ? true : false;
+            return Canceled != null || Canceled.Who != "" ? true : false;
+        }
+
+        public bool ProceedStage(string Stage = "", Flag Setter = null)
+        {
+            if (string.IsNullOrWhiteSpace(Stage) || Setter == null || string.IsNullOrWhiteSpace(Setter.Who) || string.IsNullOrWhiteSpace(Setter.Why))
+                return false;
+
+            switch (Stage.ToLower())
+            {
+                case "received": // cần xử lí
+                    Received = Setter;
+                    break;
+
+                case "prepared": // cần chuẩn bị
+                    if (Received == null)
+                        return false;
+                    Prepared = Setter;
+                    break;
+
+                case "delivering": // cần vận chuyển
+                    if (Prepared == null)
+                        return false;
+                    Delivering = Setter;
+                    break;
+
+                case "fulfilled": // cần giao hàng
+                    if (Delivering == null)
+                        return false;
+                    FulFilled = Setter;
+                    break;
+
+                case "canceled": // đã hủy
+                    if (Prepared != null)
+                        return false;
+                    Canceled = Setter;
+                    break;
+
+                default:
+                    return false;
+            }
+            return true;
         }
     }
 }

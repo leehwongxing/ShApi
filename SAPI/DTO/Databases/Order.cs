@@ -18,7 +18,7 @@ namespace DTO.Databases
 
         public Status OrderStatus { get; set; }
 
-        public Dictionary<Product, int> Ordered { get; set; }
+        public Dictionary<Projection.Recommendation, int> Ordered { get; set; }
 
         public Order() : base()
         {
@@ -28,7 +28,7 @@ namespace DTO.Databases
             Payment = null;
             Note = "";
             OrderStatus = new Status();
-            Ordered = new Dictionary<Product, int>();
+            Ordered = new Dictionary<Projection.Recommendation, int>();
             Group = "ORDER";
         }
     }

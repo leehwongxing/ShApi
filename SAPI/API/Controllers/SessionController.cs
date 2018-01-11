@@ -234,9 +234,66 @@ namespace API.Controllers
         }
 
         [HttpPost("checkout")]
-        public DTO.Messages.Wrapper MakeOrder()
+        public DTO.Messages.Wrapper MakeOrder([FromBody] DTO.Messages.CheckOutCart Data = null)
         {
-            return null;
+            var Result = AuthorizeResponse();
+            var Session = SessionRepo.GetOne(Token.jti);
+
+            if (Data == null)
+            {
+                Data = new DTO.Messages.CheckOutCart();
+            }
+            if (Session.Cart.Count == 0)
+            {
+                Result.Messages.Add("Cart", "is empty, please choose something before check out");
+            }
+            if (Session.DeliveryAddress == null)
+            {
+                Result.Messages.Add("DeliveryAddress", "is not set");
+            }
+            if (Session.PaymentAddress == null)
+            {
+                Result.Messages.Add("PaymentAddress", "is not set");
+            }
+
+            if (Result.Messages.Count > 0)
+            {
+                Result.Status = "Bad Request";
+                Result.Code = 400;
+                return Result;
+            }
+
+            var Cart = new Dictionary<DTO.Projection.Recommendation, int>();
+            var Products = ProductRepo.QueryableCollection
+                    .Where(x => Session.Cart.ContainsKey(x.Id))
+                    .Select(x => new DTO.Projection.Recommendation
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Price = x.Price,
+                        Images = x.Images
+                    });
+
+            foreach (var Product in Products)
+            {
+                Session.Cart.TryGetValue(Product.Id, out int Quantity);
+                Cart.Add(Product, Quantity);
+            }
+
+            var Order = new DTO.Databases.Order
+            {
+                Note = Data.Note,
+                OrdererId = Token.sub,
+                Delivery = Session.DeliveryAddress,
+                Payment = Session.PaymentAddress,
+                Ordered = Cart
+            };
+            OrderRepo.Save(Order);
+
+            Session.Cart = new Dictionary<string, int>();
+            SessionRepo.Save(Session);
+
+            return Result;
         }
     }
 }
